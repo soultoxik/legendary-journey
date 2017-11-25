@@ -41,6 +41,7 @@ packages:
 # (e.g., acme-missiles-0.3)
 extra-deps:
     - snap-core-1.0.3.1
+    - mongoDB-2.3.0
 
 # Override default flag values for local packages and extra-deps
 flags: {}
