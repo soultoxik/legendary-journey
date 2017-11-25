@@ -14,14 +14,15 @@ import Types
 
 
 allStations :: Stations
-allStations = [
+allStations = St { stations = [
                 S {stationId = 0, coord = XY 43.4 11.5, m = M [E "o3" 4.4] },
                 S {stationId = 1, coord = XY 3.42 45.4, m = M [E "o3" 3.4] },
                 S {stationId = 2, coord = XY 0.5 51.7, m = M [E "o3" 4.2] },
                 S {stationId = 3, coord = XY 44.4 51.5, m = M [E "o3" 4.6] },
                 S {stationId = 4, coord = XY 12.3 44.5, m = M [E "o3" 5.8] },
-                S {stationId = 5, coord = XY 53.4 5.5, m = M [E "o3" 4.gi5] }
+                S {stationId = 5, coord = XY 53.4 5.5, m = M [E "o3" 4.4] }
                 ]
+              }
 
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
@@ -35,4 +36,4 @@ main = do
 
     get "/station/:id" $ do
       pid <- param "id"
-      json $ filter (byId pid) allStations
+      json $ filter (byId pid) $ stations allStations

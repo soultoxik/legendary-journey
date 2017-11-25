@@ -27,8 +27,10 @@ data StationInfo = S
   , m :: Measurement
   } deriving (Generic, Show)
 
-type Stations = [StationInfo]
+data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 
+
+instance ToJSON Stations
 instance ToJSON Entry
 instance ToJSON Coord
 instance ToJSON Measurement
