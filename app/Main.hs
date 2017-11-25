@@ -9,6 +9,8 @@ import GHC.Generics
 import Web.Scotty
 import Network.Wai.Handler.Warp
 import Types
+import AirqualityDataFetcher
+import qualified Data.String as DS
 
 
 
@@ -70,3 +72,9 @@ main = do
 
       -- pid <- param "id"
       json $ stationInfo
+
+    get "/no2/:id" $ do
+      sid <- param "id"
+      addHeader "Access-Control-Allow-Origin" "*"
+      level <- liftAndCatchIO $ getStationNO2Level $ read sid
+      text $ DS.fromString level
