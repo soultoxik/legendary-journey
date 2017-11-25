@@ -23,6 +23,12 @@ allStations = St { stations = [
                 S {stationId = 5, coord = XY 53.4 5.5, m = M [E "o3" 4.4] }
                 ]
               }
+-- 
+-- stationInfo :: [[Animal]]
+-- stationInfo = [
+--                 [A
+
+
 
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
