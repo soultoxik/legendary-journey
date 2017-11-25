@@ -37,7 +37,7 @@ byId i (S {stationId = ci}) = (i == ci)
 
 main = do
   putStrLn "Starting Server..."
-  let settings = setPort 3000 $ setHost "10.100.41.153" defaultSettings
+  let settings = setPort 3000 $ setHost "0.0.0.0" defaultSettings
   scottyOpts (Options {verbose = 1,  settings = settings}) $ do
     get "/stations" $ do
       json allStations
