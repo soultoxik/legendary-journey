@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module AirqualityDataFetcher
     ( getStationNO2Level
@@ -6,6 +7,8 @@ module AirqualityDataFetcher
 
 import Data.Monoid
 import Data.Aeson
+import GHC.Generics
+import Data.Text
 import Network.HTTP.Conduit
 
 type StationId = Int
@@ -28,6 +31,18 @@ getStationNO2LevelJson stationId = do
     case response of
                     (Just v) -> return (show $ v)
                     Nothing -> return ""
+
+data ErrorMsg =
+     ErrorMsg { error :: Bool
+               ,message :: !Text
+              } deriving (Show, Generic)
+
+instance FromJSON ErrorMsg
+
+parseNO2Level :: IO String -> IO String
+parseNO2Level json = do
+                    str <- json
+                    return str
 
 getStationNO2Level :: Int -> IO String
 getStationNO2Level stationId = do
