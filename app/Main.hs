@@ -23,10 +23,12 @@ allStations = St { stations = [
                 S {stationId = 5, coord = XY 53.4 5.5, m = M [E "o3" 4.4] }
                 ]
               }
--- 
--- stationInfo :: [[Animal]]
--- stationInfo = [
---                 [A
+
+stationInfo :: [Animal]
+stationInfo = [ (A "dog" [(AL {measure = "o3", lifeexp = 3333, concentration = 0.33})] ) ,
+                (A "pes" [(AL {measure = "no2", lifeexp = 666, concentration = 14.33})] )
+              ]
+
 
 
 
@@ -43,3 +45,7 @@ main = do
     get "/station/:id" $ do
       pid <- param "id"
       json $ filter (byId pid) $ stations allStations
+
+    get "/info/:id" $ do
+      -- pid <- param "id"
+      json $ stationInfo
