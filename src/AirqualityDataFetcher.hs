@@ -1,57 +1,33 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module AirqualityDataFetcher
-    ( someFunc
+    ( fetchSomeData
     ) where
 
-import Control.Applicative
-import Control.Monad
-import Control.Monad.IO.Class
-import Control.Monad.Trans.Either
-import Data.Aeson
 import Data.Monoid
-import Data.Proxy
-import Data.Text (Text)
-import GHC.Generics
-import Servant.API
-import Servant.Client
+import Data.Aeson
+import Network.HTTP.Conduit
 
-data Position = Position
-  { xCoord :: Int
-  , yCoord :: Int
-  } deriving (Show, Generic)
+type NO2Id = String
 
-instance FromJSON Position
+apiUrl :: String
+apiUrl = "http://biomi.kapsi.fi/tools/airquality/?p=nitrogendioxide&ss="
 
-newtype HelloMessage = HelloMessage { msg :: String }
-  deriving (Show, Generic)
+requestUrl :: String
+requestUrl = ""
 
-instance FromJSON HelloMessage
+requestBuilder :: NO2Id -> String
+requestBuilder vid = apiUrl <> vid <> requestUrl
 
-data ClientInfo = ClientInfo
-  { clientName :: String
-  , clientEmail :: String
-  , clientAge :: Int
-  , clientInterestedIn :: [String]
-  } deriving Generic
 
-instance ToJSON ClientInfo
+getVenue :: NO2Id -> IO (Maybe Value)
+getVenue vid = do
+    rawJson <- simpleHttp $ requestBuilder vid
+    return (decode rawJson :: Maybe Value)
 
-data Email = Email
-  { from :: String
-  , to :: String
-  , subject :: String
-  , body :: String
-  } deriving (Show, Generic)
-
-instance FromJSON Email
-
-type API = "position" :> Capture "x" Int :> Capture "y" Int :> Get '[JSON] Position
-      :<|> "hello" :> QueryParam "name" String :> Get '[JSON] HelloMessage
-      :<|> "marketing" :> ReqBody '[JSON] ClientInfo :> Post '[JSON] Email
-
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+fetchSomeData :: IO String
+fetchSomeData = do
+    response <- getVenue "563"
+    case response of
+                    (Just v) -> return (show $ v)
+                    Nothing -> return ""
