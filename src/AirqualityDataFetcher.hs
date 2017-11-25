@@ -18,8 +18,8 @@ type StationId = Int
 data MeasurementInfo =
     MeasurementInfo {
 --            data :: Float,
-            time :: Int,
-            en :: Text
+            time :: Int
+--            EN :: Text
     } deriving (Show, Generic)
 
 
@@ -51,10 +51,10 @@ getStationData sid meas = do
 
 getStationNO2LevelJson :: Int -> IO String
 getStationNO2LevelJson stationId = do
-    response <- (eitherDecode <$> getStationData stationId "nitrogendioxide") :: IO (Either String ErrorMsg)
+    response <- (eitherDecode <$> getStationData stationId "nitrogendioxide") :: IO (Either String NO2Data)
     case response of
-                    Right msg -> return (show $ msg)
-                    Left err -> return "err"
+                    Right msg -> return (show msg)
+                    Left err -> return (show err)
 
 parseNO2Level :: IO String -> IO String
 parseNO2Level json = do
