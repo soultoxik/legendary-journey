@@ -25,8 +25,25 @@ allStations = St { stations = [
               }
 
 stationInfo :: [Animal]
-stationInfo = [ (A "dog" [(AL {measure = "o3", lifeexp = 3333, concentration = 0.33})] ) ,
-                (A "pes" [(AL {measure = "no2", lifeexp = 666, concentration = 14.33})] )
+stationInfo = [
+                (A "dog" [
+                  (AL {
+                        measure = "o3",
+                        lifeexp = 3333,
+                        concentration = 0.33
+                        }
+                      )
+                  ]
+                ) ,
+                (A "pes" [
+                  (AL {
+                        measure = "no2"
+                        lifeexp = 666,
+                        concentration = 14.33
+                        }
+                      )
+                  ]
+                )
               ]
 
 
