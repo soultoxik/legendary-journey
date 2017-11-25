@@ -60,9 +60,9 @@ getStationNO2LevelJson stationId = do
                                                 Right msg -> return (Left $ show $ message msg)
                                                 Left msg -> return (Left $ show msg)
 
-getStationNO2Level :: Int -> IO String
+getStationNO2Level :: Int -> IO (Maybe Float)
 getStationNO2Level stationId = do
     response <- getStationNO2LevelJson stationId
     case response of
-                    Right t -> return (show t)
-                    Left msg -> return (msg)
+                    Right t -> return (Just $ fromIntegral t)
+                    Left msg -> return Nothing
