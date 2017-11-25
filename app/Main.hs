@@ -12,6 +12,7 @@ import Types
 import AirqualityDataFetcher
 import qualified Data.String as DS
 import Estimator
+import Data.Time.Clock.POSIX
 
 
 
@@ -79,6 +80,9 @@ main = do
       addHeader "Access-Control-Allow-Origin" "*"
       level <- liftAndCatchIO $ getStationNO2Level $ read sid
       text $ DS.fromString level
+    get "/info/:lat/:lon"
+      text $ show $ getPOSIXTime
+
 
     get "/pm/:lat/:lon" $ do
       -- lat <- param "lat"
