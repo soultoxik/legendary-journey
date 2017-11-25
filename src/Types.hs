@@ -29,6 +29,22 @@ data StationInfo = S
 
 data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 
+data Animal = A {
+  animal :: String,
+  info :: AInfo
+} deriving (Show, Generic)
+
+type AInfo = [AnimalLife]
+data AnimalLife = AL {
+  measure :: T.Text,
+  lifeexp :: Int,
+  concentration :: Float
+} deriving (Show, Generic)
+
+
+instance ToJSON Animal
+instance ToJSON AnimalLife
+
 
 instance ToJSON Stations
 instance ToJSON Entry
