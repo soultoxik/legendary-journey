@@ -6,10 +6,19 @@ url = "http://www.ilmanlaatu.fi/mittaaminen/verkot/asemat/asemat.php?nws={}"
 xpath = "//*[contains(@name, 'ss')]/optgroup/option"
 
 ss_url = "http://www.ilmanlaatu.fi/mittaaminen/verkot/asemat/asemat.php?nws={}&ss={}"
-ss_N = '//*[contains(@class, "teksti12")]/table/tbody/tr[3]/td[2]'
-ss_E = '//*[contains(@class, "teksti12")]/table/tbody/tr[4]/td[2]'
+ss_N = "//*[contains(@class, 'teksti12')]/table/tbody"
+ss_E = "//*[contains(@class, 'teksti12')]/table/tbody/tr[4]/td[2]"
 
-sid_ss = {}
+def foo(s):
+    while True:
+        try:
+            mock = float(s)
+            return s
+        except:
+            pass
+        s = s[:-1]
+    return s
+
 
 with open('./munmap', 'r') as f:
     for line in f:
@@ -17,15 +26,12 @@ with open('./munmap', 'r') as f:
 
         u = url.format(sid)
         page = html.fromstring(urllib.urlopen(u).read())
-        sid_ss[sid] = []
         for link in page.xpath(xpath):
             ssid = link.attrib['value']
-
             ssu = ss_url.format(sid, ssid)
-            sspage = html.fromstring(urllib.urlopen(ssu).read())
-            for i in sspage.xpath('//*[contains(@class, "teksti12")]/table/tbody'):
-                print i
-            #e = sspage.xpath(ss_E)
-            #sid_ss[sid].append([link.attrib['value'], n, e])
+            t = urllib.urlopen(ssu).read()
+            nn = t.find('Pohjoiskoordinaatti (&deg;N) </td><td colspan="3">') + len('Pohjoiskoordinaatti (&deg;N) </td><td colspan="3">')
+            n = foo(t[nn:nn+8])
+            e = foo(t[nn+76:nn+84])
+            print ssid, n, e
 
-print sid_ss
