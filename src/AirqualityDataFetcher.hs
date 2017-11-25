@@ -49,23 +49,20 @@ getStationData sid meas = do
     rawJson <- simpleHttp $ requestBuilder sid meas
     return rawJson 
 
-getStationNO2LevelJson :: Int -> IO String
+getStationNO2LevelJson :: Int -> IO (Either String Int)
 getStationNO2LevelJson stationId = do
     response <- (eitherDecode <$> getStationData stationId "nitrogendioxide") :: IO (Either String NO2Data)
     case response of
-                    Right msg -> return (show ( time ( latest msg) ))
+                    Right msg -> return (Right $ time (latest msg) )
                     Left err -> do
                                 errorResult <- (eitherDecode <$> getStationData stationId "nitrogendioxide") :: IO (Either String ErrorMsg)
                                 case errorResult of
-                                                Right msg -> return (show $ message msg)
-                                                Left msg -> return (show msg)
-
-parseNO2Level :: IO String -> IO String
-parseNO2Level json = do
-                    str <- json
-                    return str
+                                                Right msg -> return (Left $ show $ message msg)
+                                                Left msg -> return (Left $ show msg)
 
 getStationNO2Level :: Int -> IO String
 getStationNO2Level stationId = do
     response <- getStationNO2LevelJson stationId
-    return response
+    case response of
+                    Right t -> return (show t)
+                    Left msg -> return (msg)
