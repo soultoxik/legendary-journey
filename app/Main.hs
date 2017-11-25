@@ -37,7 +37,7 @@ stationInfo = [
                 ) ,
                 (A "pes" [
                   (AL {
-                        measure = "no2"
+                        measure = "no2",
                         lifeexp = 666,
                         concentration = 14.33
                         }
@@ -57,12 +57,16 @@ main = do
   let settings = setPort 3000 $ setHost "0.0.0.0" defaultSettings
   scottyOpts (Options {verbose = 1,  settings = settings}) $ do
     get "/stations" $ do
+      addHeader "Access-Control-Allow-Origin" "*"
       json allStations
 
     get "/station/:id" $ do
       pid <- param "id"
+      addHeader "Access-Control-Allow-Origin" "*"
       json $ filter (byId pid) $ stations allStations
 
     get "/info/:id" $ do
+      addHeader "Access-Control-Allow-Origin" "*"
+
       -- pid <- param "id"
       json $ stationInfo
