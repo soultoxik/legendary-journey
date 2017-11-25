@@ -8,23 +8,28 @@ import Data.Monoid
 import Data.Aeson
 import Network.HTTP.Conduit
 
-type NO2Id = Int
+type StationId = Int
 
 apiUrl :: String
-apiUrl = "http://biomi.kapsi.fi/tools/airquality/?p=nitrogendioxide&ss="
+apiUrl = "http://biomi.kapsi.fi/tools/airquality/"
 
-requestBuilder :: NO2Id -> String
-requestBuilder sid = apiUrl <> (show sid)
+requestBuilder :: StationId -> String -> String
+requestBuilder sid meas = apiUrl <> "?p=" <> meas <> "&ss=" <> (show sid) 
 
 
-getStationData :: NO2Id -> IO (Maybe Value)
-getStationData sid = do
-    rawJson <- simpleHttp $ requestBuilder sid
+getStationData :: StationId -> String -> IO (Maybe Value)
+getStationData sid meas = do
+    rawJson <- simpleHttp $ requestBuilder sid meas
     return (decode rawJson :: Maybe Value)
 
-getStationNO2Level :: Int -> IO String
-getStationNO2Level stationId = do
-    response <- getStationData stationId
+getStationNO2LevelJson :: Int -> IO String
+getStationNO2LevelJson stationId = do
+    response <- getStationData stationId "nitrogendioxide"
     case response of
                     (Just v) -> return (show $ v)
                     Nothing -> return ""
+
+getStationNO2Level :: Int -> IO String
+getStationNO2Level stationId = do
+    response <- getStationNO2LevelJson stationId
+    return response
