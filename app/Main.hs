@@ -79,3 +79,10 @@ main = do
       addHeader "Access-Control-Allow-Origin" "*"
       level <- liftAndCatchIO $ getStationNO2Level $ read sid
       text $ DS.fromString level
+
+    get "/pm/:lat/:lon" $ do
+      -- lat <- param "lat"
+      -- lon <- param "lon"
+      let pm10 = deathRateDelta 200 PM10
+          pm25 = deathRateDelta 200 PM25
+      json $ PMP {pm10 = pm10, pm25 = pm25}
