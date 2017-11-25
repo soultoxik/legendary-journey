@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module AirqualityDataFetcher
     ( getStationNO2Level
@@ -12,6 +13,28 @@ import Data.Text
 import Network.HTTP.Conduit
 
 type StationId = Int
+
+data MeasurementInfo =
+    MeasurementInfo {
+            dta :: Float,
+            time :: Int,
+            en :: Text
+    } deriving (Show, Generic)
+
+
+data NO2Data =
+     NO2Data { errorStatus :: Bool
+               ,latest :: MeasurementInfo
+              } deriving (Show, Generic)
+
+data ErrorMsg =
+     ErrorMsg { errorStatus :: Bool
+               ,message :: !Text
+              } deriving (Show, Generic)
+
+instance FromJSON ErrorMsg
+instance FromJSON MeasurementInfo
+instance FromJSON NO2Data
 
 apiUrl :: String
 apiUrl = "http://biomi.kapsi.fi/tools/airquality/"
@@ -31,13 +54,6 @@ getStationNO2LevelJson stationId = do
     case response of
                     (Just v) -> return (show $ v)
                     Nothing -> return ""
-
-data ErrorMsg =
-     ErrorMsg { error :: Bool
-               ,message :: !Text
-              } deriving (Show, Generic)
-
-instance FromJSON ErrorMsg
 
 parseNO2Level :: IO String -> IO String
 parseNO2Level json = do
