@@ -30,10 +30,10 @@ data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 makeAnimal :: String -> [AnimalLife] -> Animal
 makeAnimal name infos = A {animal = name, info = infos}
 
-makeAnimalLife :: T.Text -> T.Text -> Float -> AnimalLife
+makeAnimalLife :: T.Text -> Int -> Float -> AnimalLife
 makeAnimalLife measure lifeexp concentration = AL { measure = measure, lifeexp = lifeexp, concentration = concentration }
 
-makeAnimalRaw :: String -> [(T.Text, T.Text, Float)] -> Animal
+makeAnimalRaw :: String -> [(T.Text, Int, Float)] -> Animal
 makeAnimalRaw name vals = makeAnimal name $ map (\(x, y, z) -> makeAnimalLife x y z) vals
 
 -- co no2 so2 o3
@@ -48,8 +48,6 @@ data Car = Car CO NO2 SO2 O3 PM10F PM25F
 car :: Car
 car = Car (grammsToConcentration 8.73) (grammsToConcentration 1.5) (grammsToConcentration 0.6) (grammsToConcentration 0.0) (grammsToConcentration 0.06) (grammsToConcentration 0.02)
 
-
-
 data Animal = A {
   animal :: String,
   info :: AInfo
@@ -58,7 +56,7 @@ data Animal = A {
 type AInfo = [AnimalLife]
 data AnimalLife = AL {
   measure :: T.Text,
-  lifeexp :: T.Text,
+  lifeexp :: Int,
   concentration :: Float
 } deriving (Show, Generic)
 

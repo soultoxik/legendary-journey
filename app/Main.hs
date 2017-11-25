@@ -32,7 +32,7 @@ stationInfo = [
                 (A "dog" [
                   (AL {
                         measure = "o3",
-                        lifeexp = "3333",
+                        lifeexp = 3333,
                         concentration = 0.33
                         }
                       )
@@ -41,7 +41,7 @@ stationInfo = [
                 (A "pes" [
                   (AL {
                         measure = "no2",
-                        lifeexp = "666",
+                        lifeexp = 666,
                         concentration = 14.33
                         }
                       )
