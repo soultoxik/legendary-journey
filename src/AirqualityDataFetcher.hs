@@ -19,7 +19,39 @@ import GHC.Generics
 import Servant.API
 import Servant.Client
 
-import qualified Data.Text    as T
-import qualified Data.Text.IO as T
+data Position = Position
+  { xCoord :: Int
+  , yCoord :: Int
+  } deriving (Show, Generic)
+
+instance FromJSON Position
+
+newtype HelloMessage = HelloMessage { msg :: String }
+  deriving (Show, Generic)
+
+instance FromJSON HelloMessage
+
+data ClientInfo = ClientInfo
+  { clientName :: String
+  , clientEmail :: String
+  , clientAge :: Int
+  , clientInterestedIn :: [String]
+  } deriving Generic
+
+instance ToJSON ClientInfo
+
+data Email = Email
+  { from :: String
+  , to :: String
+  , subject :: String
+  , body :: String
+  } deriving (Show, Generic)
+
+instance FromJSON Email
+
+type API = "position" :> Capture "x" Int :> Capture "y" Int :> Get '[JSON] Position
+      :<|> "hello" :> QueryParam "name" String :> Get '[JSON] HelloMessage
+      :<|> "marketing" :> ReqBody '[JSON] ClientInfo :> Post '[JSON] Email
+
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
