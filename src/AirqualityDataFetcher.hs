@@ -1,33 +1,30 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module AirqualityDataFetcher
-    ( fetchSomeData
+    ( getStationNO2Level
     ) where
 
 import Data.Monoid
 import Data.Aeson
 import Network.HTTP.Conduit
 
-type NO2Id = String
+type NO2Id = Int
 
 apiUrl :: String
 apiUrl = "http://biomi.kapsi.fi/tools/airquality/?p=nitrogendioxide&ss="
 
-requestUrl :: String
-requestUrl = ""
-
 requestBuilder :: NO2Id -> String
-requestBuilder vid = apiUrl <> vid <> requestUrl
+requestBuilder sid = apiUrl <> (show sid)
 
 
-getVenue :: NO2Id -> IO (Maybe Value)
-getVenue vid = do
-    rawJson <- simpleHttp $ requestBuilder vid
+getStationData :: NO2Id -> IO (Maybe Value)
+getStationData sid = do
+    rawJson <- simpleHttp $ requestBuilder sid
     return (decode rawJson :: Maybe Value)
 
-fetchSomeData :: IO String
-fetchSomeData = do
-    response <- getVenue "563"
+getStationNO2Level :: Int -> IO String
+getStationNO2Level stationId = do
+    response <- getStationData stationId
     case response of
                     (Just v) -> return (show $ v)
                     Nothing -> return ""
