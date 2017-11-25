@@ -56,8 +56,8 @@ handleErrorMsg json = case errorResult of
                       where errorResult  = (eitherDecode json) :: Either String ErrorMsg
 
 
-getStationNO2LevelJson :: Int -> IO (Either String Int)
-getStationNO2LevelJson stationId = do
+getStationNO2LevelData :: Int -> IO (Either String Int)
+getStationNO2LevelData stationId = do
     json <- getRawStationJsonData stationId "nitrogendioxide"
     let response = eitherDecode json :: Either String NO2Data
     case response of
@@ -66,7 +66,7 @@ getStationNO2LevelJson stationId = do
 
 getStationNO2Level :: Int -> IO (Maybe Float)
 getStationNO2Level stationId = do
-    response <- getStationNO2LevelJson stationId
+    response <- getStationNO2LevelData stationId
     case response of
                     Right t -> return (Just $ fromIntegral t)
                     Left msg -> return Nothing
