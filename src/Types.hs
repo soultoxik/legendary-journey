@@ -32,10 +32,10 @@ data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 makeAnimal :: String -> [AnimalLife] -> Animal
 makeAnimal name infos = A {animal = name, info = infos}
 
-makeAnimalLife :: T.Text -> Int -> Float -> AnimalLife
+makeAnimalLife :: T.Text -> T.Text -> Float -> AnimalLife
 makeAnimalLife measure lifeexp concentration = AL { measure = measure, lifeexp = lifeexp, concentration = concentration }
 
-makeAnimalRaw :: String -> [(T.Text, Int, Float)] -> Animal
+makeAnimalRaw :: String -> [(T.Text, T.Text, Float)] -> Animal
 makeAnimalRaw name vals = makeAnimal name $ map (\(x, y, z) -> makeAnimalLife x y z) vals
 
 data Animal = A {
@@ -46,7 +46,7 @@ data Animal = A {
 type AInfo = [AnimalLife]
 data AnimalLife = AL {
   measure :: T.Text,
-  lifeexp :: Int,
+  lifeexp :: T.Text,
   concentration :: Float
 } deriving (Show, Generic)
 
