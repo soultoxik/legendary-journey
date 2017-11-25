@@ -56,6 +56,10 @@ stationInfo = [
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
 
+randomMaker :: Int -> Float
+randomMaker seed = val / 310.0
+    where val = (fromIntegral (seed `mod` 100)) * 3.14 + 2.71
+
 main = do
   putStrLn "Starting Server..."
   let settings = setPort 3000 $ setHost "0.0.0.0" defaultSettings
@@ -80,8 +84,9 @@ main = do
       addHeader "Access-Control-Allow-Origin" "*"
       level <- liftAndCatchIO $ getStationNO2Level $ read sid
       text $ DS.fromString level
-    get "/info/:lat/:lon"
-      text $ show $ getPOSIXTime
+    get "/info/:lat/:lon" $ do
+      time <- liftAndCatchIO $  round `fmap` getPOSIXTime
+      text $ DS.fromString $ show $ randomMaker time
 
 
     get "/pm/:lat/:lon" $ do
