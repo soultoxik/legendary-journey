@@ -21,6 +21,10 @@ data StationInfo = S
   , m :: Measurement
   } deriving (Generic, Show)
 
+
+grammsToConcentration :: Float -> Float
+grammsToConcentration g = (g / 1500.0) * 1000000.0
+
 data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 
 makeAnimal :: String -> [AnimalLife] -> Animal
@@ -31,6 +35,20 @@ makeAnimalLife measure lifeexp concentration = AL { measure = measure, lifeexp =
 
 makeAnimalRaw :: String -> [(T.Text, T.Text, Float)] -> Animal
 makeAnimalRaw name vals = makeAnimal name $ map (\(x, y, z) -> makeAnimalLife x y z) vals
+
+-- co no2 so2 o3
+type CO = Float
+type NO2 = Float
+type SO2 = Float
+type O3 = Float
+type PM10F = Float
+type PM25F = Float
+
+data Car = Car CO NO2 SO2 O3 PM10F PM25F
+car :: Car
+car = Car (grammsToConcentration 8.73) (grammsToConcentration 1.5) (grammsToConcentration 0.6) (grammsToConcentration 0.0) (grammsToConcentration 0.06) (grammsToConcentration 0.02)
+
+
 
 data Animal = A {
   animal :: String,
