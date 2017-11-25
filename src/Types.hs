@@ -29,6 +29,15 @@ data StationInfo = S
 
 data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 
+makeAnimal :: String -> [AnimalLife] -> Animal
+makeAnimal name infos = A {animal = name, info = infos}
+
+makeAnimalLife :: T.Text -> Int -> Float -> AnimalLife
+makeAnimalLife measure lifeexp concentration = AL { measure = measure, lifeexp = lifeexp, concentration = concentration }
+
+makeAnimalRaw :: String -> [(T.Text, Int, Float)] -> Animal
+makeAnimalRaw name vals = makeAnimal name $ map (\(x, y, z) -> makeAnimalLife x y z) vals
+
 data Animal = A {
   animal :: String,
   info :: AInfo

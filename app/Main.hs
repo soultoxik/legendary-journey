@@ -11,6 +11,7 @@ import Network.Wai.Handler.Warp
 import Types
 import AirqualityDataFetcher
 import qualified Data.String as DS
+import Estimator
 
 
 

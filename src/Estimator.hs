@@ -1,7 +1,10 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Estimator where
 import Types
-import qualified Data.Map.Strict as Map
 
--- animals :: 
+animalsBase :: [Animal]
+animalsBase = map (\(n, vals) -> makeAnimalRaw n vals) [
+  ("dog", [("o3", 1222, 0.33)]) ]
 
 -- animals =
