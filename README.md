@@ -4,6 +4,9 @@
 
 ```
     > stack setup
+    > stack install snap-core
+    > stack install servant
+    > stack install servant-client
 ```
 
 ## Build
