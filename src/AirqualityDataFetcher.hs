@@ -53,8 +53,12 @@ getStationNO2LevelJson :: Int -> IO String
 getStationNO2LevelJson stationId = do
     response <- (eitherDecode <$> getStationData stationId "nitrogendioxide") :: IO (Either String NO2Data)
     case response of
-                    Right msg -> return (show msg)
-                    Left err -> return (show err)
+                    Right msg -> return (show ( time ( latest msg) ))
+                    Left err -> do
+                                errorResult <- (eitherDecode <$> getStationData stationId "nitrogendioxide") :: IO (Either String ErrorMsg)
+                                case errorResult of
+                                                Right msg -> return (show $ message msg)
+                                                Left msg -> return (show msg)
 
 parseNO2Level :: IO String -> IO String
 parseNO2Level json = do
