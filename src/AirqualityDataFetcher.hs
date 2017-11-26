@@ -4,7 +4,9 @@
 
 module AirqualityDataFetcher
     (
-       infoById
+       infoById,
+       getStationPM10Level,
+       getStationPM2_5Level 
     ) where
 
 import Data.Monoid
@@ -116,6 +118,20 @@ getStationPM10Level stationId = do
                     Right t -> return (Just $ t)
                     Left msg -> return Nothing
 
+getStationPM2_5LevelData :: Int -> IO (Either String Float)
+getStationPM2_5LevelData stationId = do
+        meas <- getStationMeasData stationId "particulateslt2_5um" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+getStationPM2_5Level :: Int -> IO (Maybe Float)
+getStationPM2_5Level stationId = do
+    response <- getStationPM2_5LevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
 type MaybeMeasurement = (String, Maybe Float)
 type MaybeMeasurements = [MaybeMeasurement]
 
@@ -124,14 +140,13 @@ type Measurements = [Measurement]
 
 gather :: Int -> IO MaybeMeasurements
 gather stationId = do
-    let toxins = ["no2", "so2", "co", "o3", "pm10"]
-    let getters = Prelude.map ($ stationId) [getStationNO2Level,  getStationSO2Level, getStationCOLevel, getStationO3Level, getStationPM10Level]
+    let toxins = ["no2", "so2", "co", "o3", "pm10", "pm25"]
+    let getters = Prelude.map ($ stationId) [getStationNO2Level,  getStationSO2Level, getStationCOLevel, getStationO3Level]
     result0 <- (getters !! 0)
     result1 <- (getters !! 1)
     result2 <- (getters !! 2)
     result3 <- (getters !! 3)
-    result4 <- (getters !! 4)
-    let results = Prelude.zip toxins [result0, result1, result2, result3, result4]
+    let results = Prelude.zip toxins [result0, result1, result2, result3]
     return results
         
 matchDefaults :: MaybeMeasurement -> Measurement
@@ -140,7 +155,7 @@ matchDefaults (toxin, Nothing) =
             case def of
                         Just x -> (toxin, x)
                         Nothing -> (toxin, -1)
-            where cityBaseDefaults = M.fromList [("no2", 27), ("so2", 0),("co", 0),("o3", 13), ("pm10", 13)]
+            where cityBaseDefaults = M.fromList [("no2", 27), ("so2", 0),("co", 0),("o3", 13), ("pm10", 13), ("pm25", 20)]
                   def = M.lookup toxin cityBaseDefaults
 
 
