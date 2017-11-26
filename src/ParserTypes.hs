@@ -24,8 +24,8 @@ instance FromJSON MeasurementInfo where
                     <*> v .: "EN"
  parseJSON _ = mzero
 
-data NO2Data =
-     NO2Data { error :: Bool
+data MeasData =
+     MeasData { error :: Bool
                ,latest :: MeasurementInfo
               } deriving (Show, Generic)
 
@@ -35,5 +35,5 @@ data ErrorMsg =
               } deriving (Show, Generic)
 
 instance FromJSON ErrorMsg
-instance FromJSON NO2Data
+instance FromJSON MeasData
 
