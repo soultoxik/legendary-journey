@@ -11,31 +11,10 @@ import Data.Aeson
 import GHC.Generics
 import Data.Text
 import qualified Data.ByteString.Lazy as B
+import qualified ParserTypes as PT
 import Network.HTTP.Conduit
 
 type StationId = Int
-
-data MeasurementInfo =
-    MeasurementInfo {
---            data :: Float,
-            time :: Int
---            EN :: Text
-    } deriving (Show, Generic)
-
-
-data NO2Data =
-     NO2Data { error :: Bool
-               ,latest :: MeasurementInfo
-              } deriving (Show, Generic)
-
-data ErrorMsg =
-     ErrorMsg { error :: Bool
-               ,message :: !Text
-              } deriving (Show, Generic)
-
-instance FromJSON ErrorMsg
-instance FromJSON MeasurementInfo
-instance FromJSON NO2Data
 
 apiUrl :: String
 apiUrl = "http://biomi.kapsi.fi/tools/airquality/"
@@ -51,9 +30,9 @@ getStationRawJsonData sid meas = do
 
 handleErrorMsg :: B.ByteString -> String
 handleErrorMsg json = case errorResult of
-                                          Right msg -> show $ message msg
+                                          Right msg -> show $ PT.message msg
                                           Left msg -> show msg
-                      where errorResult  = (eitherDecode json) :: Either String ErrorMsg
+                      where errorResult  = (eitherDecode json) :: Either String PT.ErrorMsg
 
 
 getStationMeasData :: FromJSON a => Int -> String -> IO (Either String a)
@@ -66,9 +45,9 @@ getStationMeasData stationId meas = do
 
 getStationNO2LevelData :: Int -> IO (Either String Int)
 getStationNO2LevelData stationId = do
-        meas <- getStationMeasData stationId "nitrogendioxide" :: IO (Either String NO2Data)
+        meas <- getStationMeasData stationId "nitrogendioxide" :: IO (Either String PT.NO2Data)
         case meas of
-                    Right m -> return (Right $ time $ latest m)
+                    Right m -> return (Right $ PT.time $ PT.latest m)
                     Left m -> return (Left $ show m)
 
 
