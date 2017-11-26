@@ -8,14 +8,21 @@ module ParserTypes where
 import GHC.Generics
 import Data.Text
 import Data.Aeson
+import Control.Monad
 
 data MeasurementInfo =
     MeasurementInfo {
---            data :: Float,
-            time :: Int
---            EN :: Text
-    } deriving (Show, Generic)
+            value :: Float,
+            time :: Int,
+            status :: Text
+    } deriving (Show)
 
+instance FromJSON MeasurementInfo where
+ parseJSON (Object v) =
+    MeasurementInfo <$> v .: "data"
+                    <*> v .: "time"
+                    <*> v .: "EN"
+ parseJSON _ = mzero
 
 data NO2Data =
      NO2Data { error :: Bool
@@ -28,6 +35,5 @@ data ErrorMsg =
               } deriving (Show, Generic)
 
 instance FromJSON ErrorMsg
-instance FromJSON MeasurementInfo
 instance FromJSON NO2Data
 

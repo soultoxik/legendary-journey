@@ -43,11 +43,11 @@ getStationMeasData stationId meas = do
                     Right msg -> return (Right $ msg )
                     Left err -> return (Left $ handleErrorMsg json)
 
-getStationNO2LevelData :: Int -> IO (Either String Int)
+getStationNO2LevelData :: Int -> IO (Either String Float)
 getStationNO2LevelData stationId = do
         meas <- getStationMeasData stationId "nitrogendioxide" :: IO (Either String PT.NO2Data)
         case meas of
-                    Right m -> return (Right $ PT.time $ PT.latest m)
+                    Right m -> return (Right $ PT.value $ PT.latest m)
                     Left m -> return (Left $ show m)
 
 
@@ -55,5 +55,5 @@ getStationNO2Level :: Int -> IO (Maybe Float)
 getStationNO2Level stationId = do
     response <- getStationNO2LevelData stationId
     case response of
-                    Right t -> return (Just $ fromIntegral t)
+                    Right t -> return (Just $ t)
                     Left msg -> return Nothing
