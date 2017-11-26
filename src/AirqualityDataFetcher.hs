@@ -4,8 +4,7 @@
 
 module AirqualityDataFetcher
     (
-        getStationNO2Level,
-        getStationCOLevel
+       infoById
     ) where
 
 import Data.Monoid
@@ -73,3 +72,45 @@ getStationCOLevel stationId = do
     case response of
                     Right t -> return (Just $ t)
                     Left msg -> return Nothing
+
+getStationSO2LevelData :: Int -> IO (Either String Float)
+getStationSO2LevelData stationId = do
+        meas <- getStationMeasData stationId "sulphurdioxide" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+getStationSO2Level :: Int -> IO (Maybe Float)
+getStationSO2Level stationId = do
+    response <- getStationSO2LevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
+getStationO3LevelData :: Int -> IO (Either String Float)
+getStationO3LevelData stationId = do
+        meas <- getStationMeasData stationId "ozone" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+getStationO3Level :: Int -> IO (Maybe Float)
+getStationO3Level stationId = do
+    response <- getStationO3LevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
+type Measurement = (String, Maybe Float)
+type Measurements = [Measurement]
+
+infoById :: Int -> IO Measurements
+infoById stationId = do
+    let toxins = ["no2", "so2", "co", "o3"]
+    let getters = Prelude.map ($ stationId) [getStationNO2Level,  getStationSO2Level, getStationCOLevel, getStationO3Level]
+    result0 <- (getters !! 0)
+    result1 <- (getters !! 1)
+    result2 <- (getters !! 2)
+    result3 <- (getters !! 3)
+    let results = Prelude.zip toxins [result0, result1, result2, result3]
+    return results
