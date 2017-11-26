@@ -1,30 +1,136 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module AirqualityDataFetcher
-    ( getStationNO2Level
+    (
+       infoById
     ) where
 
 import Data.Monoid
 import Data.Aeson
+import GHC.Generics
+import Data.Text
+import qualified Data.ByteString.Lazy as B
+import qualified Data.Map as M
+import qualified ParserTypes as PT
 import Network.HTTP.Conduit
 
-type NO2Id = Int
+type StationId = Int
 
 apiUrl :: String
-apiUrl = "http://biomi.kapsi.fi/tools/airquality/?p=nitrogendioxide&ss="
+apiUrl = "http://biomi.kapsi.fi/tools/airquality/"
 
-requestBuilder :: NO2Id -> String
-requestBuilder sid = apiUrl <> (show sid)
+requestBuilder :: StationId -> String -> String
+requestBuilder sid meas = apiUrl <> "?p=" <> meas <> "&ss=" <> (show sid) 
 
 
-getStationData :: NO2Id -> IO (Maybe Value)
-getStationData sid = do
-    rawJson <- simpleHttp $ requestBuilder sid
-    return (decode rawJson :: Maybe Value)
+getStationRawJsonData :: StationId -> String -> IO B.ByteString
+getStationRawJsonData sid meas = do
+    rawJson <- simpleHttp $ requestBuilder sid meas
+    return rawJson 
 
-getStationNO2Level :: Int -> IO String
-getStationNO2Level stationId = do
-    response <- getStationData stationId
+handleErrorMsg :: B.ByteString -> String
+handleErrorMsg json = case errorResult of
+                                          Right msg -> show $ PT.message msg
+                                          Left msg -> show msg
+                      where errorResult  = (eitherDecode json) :: Either String PT.ErrorMsg
+
+
+getStationMeasData :: FromJSON a => Int -> String -> IO (Either String a)
+getStationMeasData stationId meas = do
+    json <- getStationRawJsonData stationId meas
+    let response = eitherDecode json :: FromJSON a => Either String a
     case response of
-                    (Just v) -> return (show $ v)
-                    Nothing -> return ""
+                    Right msg -> return (Right $ msg )
+                    Left err -> return (Left $ handleErrorMsg json)
+
+getStationNO2LevelData :: Int -> IO (Either String Float)
+getStationNO2LevelData stationId = do
+        meas <- getStationMeasData stationId "nitrogendioxide" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+getStationCOLevelData :: Int -> IO (Either String Float)
+getStationCOLevelData stationId = do
+        meas <- getStationMeasData stationId "carbonmonoxide" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+
+getStationNO2Level :: Int -> IO (Maybe Float)
+getStationNO2Level stationId = do
+    response <- getStationNO2LevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
+getStationCOLevel :: Int -> IO (Maybe Float)
+getStationCOLevel stationId = do
+    response <- getStationCOLevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
+getStationSO2LevelData :: Int -> IO (Either String Float)
+getStationSO2LevelData stationId = do
+        meas <- getStationMeasData stationId "sulphurdioxide" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+getStationSO2Level :: Int -> IO (Maybe Float)
+getStationSO2Level stationId = do
+    response <- getStationSO2LevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
+getStationO3LevelData :: Int -> IO (Either String Float)
+getStationO3LevelData stationId = do
+        meas <- getStationMeasData stationId "ozone" :: IO (Either String PT.MeasData)
+        case meas of
+                    Right m -> return (Right $ PT.value $ PT.latest m)
+                    Left m -> return (Left $ show m)
+
+getStationO3Level :: Int -> IO (Maybe Float)
+getStationO3Level stationId = do
+    response <- getStationO3LevelData stationId
+    case response of
+                    Right t -> return (Just $ t)
+                    Left msg -> return Nothing
+
+type MaybeMeasurement = (String, Maybe Float)
+type MaybeMeasurements = [MaybeMeasurement]
+
+type Measurement = (String, Float)
+type Measurements = [Measurement]
+
+gather :: Int -> IO MaybeMeasurements
+gather stationId = do
+    let toxins = ["no2", "so2", "co", "o3"]
+    let getters = Prelude.map ($ stationId) [getStationNO2Level,  getStationSO2Level, getStationCOLevel, getStationO3Level]
+    result0 <- (getters !! 0)
+    result1 <- (getters !! 1)
+    result2 <- (getters !! 2)
+    result3 <- (getters !! 3)
+    let results = Prelude.zip toxins [result0, result1, result2, result3]
+    return results
+        
+matchDefaults :: MaybeMeasurement -> Measurement
+matchDefaults (toxin, Just meas) = (toxin, meas) 
+matchDefaults (toxin, Nothing) = 
+            case def of
+                        Just x -> (toxin, x)
+                        Nothing -> (toxin, -1)
+            where cityBaseDefaults = M.fromList [("no2", 27), ("so2", 0),("co", 0),("o3", 13)]
+                  def = M.lookup toxin cityBaseDefaults
+
+
+infoById :: Int -> IO Measurements
+infoById stationId = do
+    gatherings <- gather stationId
+    let result = fmap matchDefaults gatherings
+    return (result)
