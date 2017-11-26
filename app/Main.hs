@@ -51,12 +51,11 @@ stationInfo = [
                 )
               ]
 
-
-
-
-
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
+
+cityBase :: [(String, Float)]
+cityBase = [("no2", 27.0), ("so2", 0.0),("co", 0.0),("o3", 13.0),("pm10",13.0),("pm25", 20.0)]
 
 
 main = do

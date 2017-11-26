@@ -5,6 +5,7 @@ module Estimator where
 import Types
 import qualified Data.Text as T
 import qualified Data.String as DS
+import qualified Data.List as DL
 
 
 
@@ -55,20 +56,38 @@ populateBase m baseConc = populateNewSource m baseConc 1
 populateFull :: T.Text -> Float -> Float -> Float -> Int -> AnimalLife
 populateFull measure baseConc carConc delta count = mergeALsConc (populateNewSourceFull measure carConc delta count) (populateBase measure baseConc)
 
+lifeExpByKey :: Animal -> T.Text -> Int
+lifeExpByKey (A {info = infos}) key =
+  let res = DL.find (\ai -> (measure ai) == key) infos in
+              case res of Just (AL {lifeexp = lifeexp}) -> lifeexp
+                          Nothing -> 0
+
+concentrationByKey :: Animal -> T.Text -> Float
+concentrationByKey (A {info = infos}) key =
+  let res = DL.find (\ai -> ( measure ai) == key) infos in
+              case res of Just (AL {concentration = concentration}) -> concentration
+                          Nothing -> 0.0
+
+newLifeexp :: String -> Float -> Animal -> Int -> Float -> Int
+newLifeexp m baseConc a rate eps= (lifeExpByKey a (DS.fromString m)) * round ((concentrationByKey a (DS.fromString m)) / (newConc m baseConc a rate eps))
+
+newConc :: String -> Float -> Animal -> Int -> Float -> Float
+newConc m baseConc a rate eps = baseConc + (carConc' (DS.fromString m) car) * (fromIntegral rate) +  eps
+
+carConc' :: String -> Car -> Float
+carConc' measure car | measure == "co" = getCO car
+                    | measure == "o3" = getO3 car
+                    | measure == "so2" = getSO2 car
+                    | measure == "no2" = getNO2 car
+                    | otherwise = 0.0
+
 generateData :: Int -> Float -> Car -> [(String, Float)] -> [Animal] -> [Animal]
 generateData rate eps car currentState base = map update base
-  where update = (\a -> A {  animal = (animal a), info = newAttrs } )
-        newAttrs :: [AnimalLife]
-        newAttrs = map magic currentState
-        magic :: (String, Float) -> AnimalLife
-        magic (m, baseConc) = AL { measure = (DS.fromString m), lifeexp = 12, concentration = baseConc + (carConc' (DS.fromString m) car) * (fromIntegral rate) +  eps}
+  where update a =  A {  animal = (animal a), info = (newAttrs a)}
+        newAttrs :: Animal -> [AnimalLife]
+        newAttrs a = map (\s -> magic s a) currentState
+        magic :: (String, Float) ->Animal-> AnimalLife
+        magic (m, baseConc) a = AL { measure = ( DS.fromString m), lifeexp = (newLifeexp m baseConc a rate eps), concentration = (newConc m baseConc a rate eps)}
 
-        -- magic (m, baseConc) = populateFull (DS.fromString m) baseConc (carConc' m car) eps rate
-        carConc' :: String -> Car -> Float
-        carConc' measure car | measure == "co" = getCO car
-                            | measure == "o3" = getO3 car
-                            | measure == "so2" = getSO2 car
-                            | measure == "no2" = getNO2 car
-                            | otherwise = 0.0
 
 -- animals =
