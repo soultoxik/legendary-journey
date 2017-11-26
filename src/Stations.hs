@@ -8,21 +8,20 @@ type Lon = Float
 type Lat = Float
 
 data Station = Station {stationId :: Id, 
-                        Lon :: Lon, 
-                        Lat :: Lat
-                        }
+                        lon :: Lon,
+                        lat :: Lat
+                        } deriving (Show)
 
 getStationIdByCoord :: Lon -> Lat -> Id
-getStationIdByCoord lon lat =
-        
+getStationIdByCoord lon lat = 0
 
 
-StationList :: [Station]
-StationList = map (\(x,y,z) -> Station x y z) $ RawStationList
+stationList :: [Station]
+stationList = map (\(x,y,z) -> Station x y z) $ rawStationList
 
 
-RawStationList :: [(Id, Lon, Lat)]
-RawStationList = [ (926,61.86953,28.88239),
+rawStationList :: [(Id, Lon, Lat)]
+rawStationList = [ (926,61.86953,28.88239),
                 (603,62.30087,27.158),
                 (165,61.69085,27.27376),
                 (601,61.87059,28.87613),
