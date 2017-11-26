@@ -8,6 +8,9 @@ import Data.String
 import           Data.Aeson
 import           GHC.Generics
 import qualified Data.Text as T
+import Geo.Types
+import Geo.Computations
+
 
 data PM = PM10 | PM25 deriving (Show, Generic)
 data PMPair = PMP {pm10 :: Float, pm25 :: Float } deriving (Show, Generic)
@@ -20,6 +23,8 @@ data StationInfo = S
   , coord :: Coord
   , m :: Measurement
   } deriving (Generic, Show)
+
+data Station = Station { id :: Int, location :: Point }
 
 
 grammsToConcentration :: Float -> Float

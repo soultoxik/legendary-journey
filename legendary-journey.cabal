@@ -42,6 +42,7 @@ executable legendary-journey-exe
                      , http-conduit
                      , time
                      , random
+                     , gps
   default-language:    Haskell2010
 
 test-suite legendary-journey-test
