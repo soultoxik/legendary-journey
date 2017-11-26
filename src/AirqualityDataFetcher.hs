@@ -44,8 +44,8 @@ requestBuilder :: StationId -> String -> String
 requestBuilder sid meas = apiUrl <> "?p=" <> meas <> "&ss=" <> (show sid) 
 
 
-getRawStationJsonData :: StationId -> String -> IO B.ByteString
-getRawStationJsonData sid meas = do
+getStationRawJsonData :: StationId -> String -> IO B.ByteString
+getStationRawJsonData sid meas = do
     rawJson <- simpleHttp $ requestBuilder sid meas
     return rawJson 
 
@@ -56,13 +56,21 @@ handleErrorMsg json = case errorResult of
                       where errorResult  = (eitherDecode json) :: Either String ErrorMsg
 
 
+getStationMeasData :: FromJSON a => Int -> String -> IO (Either String a)
+getStationMeasData stationId meas = do
+    json <- getStationRawJsonData stationId meas
+    let response = eitherDecode json :: FromJSON a => Either String a
+    case response of
+                    Right msg -> return (Right $ msg )
+                    Left err -> return (Left $ handleErrorMsg json)
+
 getStationNO2LevelData :: Int -> IO (Either String Int)
 getStationNO2LevelData stationId = do
-    json <- getRawStationJsonData stationId "nitrogendioxide"
-    let response = eitherDecode json :: Either String NO2Data
-    case response of
-                    Right msg -> return (Right $ time (latest msg) )
-                    Left err -> return (Left $ handleErrorMsg json)
+        meas <- getStationMeasData stationId "nitrogendioxide" :: IO (Either String NO2Data)
+        case meas of
+                    Right m -> return (Right $ time $ latest m)
+                    Left m -> return (Left $ show m)
+
 
 getStationNO2Level :: Int -> IO (Maybe Float)
 getStationNO2Level stationId = do
