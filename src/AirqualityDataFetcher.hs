@@ -5,7 +5,7 @@
 module AirqualityDataFetcher
     (
         getStationNO2Level,
-        getStationCO2Level
+        getStationCOLevel
     ) where
 
 import Data.Monoid
@@ -52,8 +52,8 @@ getStationNO2LevelData stationId = do
                     Right m -> return (Right $ PT.value $ PT.latest m)
                     Left m -> return (Left $ show m)
 
-getStationCO2LevelData :: Int -> IO (Either String Float)
-getStationCO2LevelData stationId = do
+getStationCOLevelData :: Int -> IO (Either String Float)
+getStationCOLevelData stationId = do
         meas <- getStationMeasData stationId "carbonmonoxide" :: IO (Either String PT.MeasData)
         case meas of
                     Right m -> return (Right $ PT.value $ PT.latest m)
@@ -67,9 +67,9 @@ getStationNO2Level stationId = do
                     Right t -> return (Just $ t)
                     Left msg -> return Nothing
 
-getStationCO2Level :: Int -> IO (Maybe Float)
-getStationCO2Level stationId = do
-    response <- getStationCO2LevelData stationId
+getStationCOLevel :: Int -> IO (Maybe Float)
+getStationCOLevel stationId = do
+    response <- getStationCOLevelData stationId
     case response of
                     Right t -> return (Just $ t)
                     Left msg -> return Nothing
