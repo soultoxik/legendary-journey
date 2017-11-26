@@ -91,6 +91,7 @@ image:
         - legendary-journey-exe
 
 packages:
-- '.'
-extra-deps: []
+- .
+extra-deps:
+- gps-1.2
 resolver: lts-9.14

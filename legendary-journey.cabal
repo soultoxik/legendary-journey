@@ -39,6 +39,10 @@ executable legendary-journey-exe
                      , aeson
                      , text
                      , warp
+                     , http-conduit
+                     , time
+                     , random
+                     , gps
   default-language:    Haskell2010
 
 test-suite legendary-journey-test
