@@ -9,6 +9,7 @@ import           Data.Aeson
 import           GHC.Generics
 import qualified Data.Text as T
 
+
 data PM = PM10 | PM25 deriving (Show, Generic)
 data PMPair = PMP {pm10 :: Float, pm25 :: Float } deriving (Show, Generic)
 

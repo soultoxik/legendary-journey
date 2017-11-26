@@ -1,19 +1,32 @@
-module AirqualityDataFetcher
+{-# LANGUAGE TupleSections #-}
+
+module Stations
     (
-       getStationIdByCoord
+       getStationIdByCoord,
+       stationList,
+       Station,
+       rawStationList
     ) where
 
 type Id = Int
 type Lon = Float
 type Lat = Float
 
-data Station = Station {stationId :: Id, 
+data Station = Station {stationId :: Id,
                         lon :: Lon,
                         lat :: Lat
                         } deriving (Show)
 
-getStationIdByCoord :: Lon -> Lat -> Id
-getStationIdByCoord lon lat = 0
+
+getStationIdByCoord :: Lat -> Lon -> Id
+getStationIdByCoord lat lon = fst $ foldl (\acc it -> if snd acc < snd it then acc else it) (-1, 999999999) (euclidian lat lon stationList)
+
+euclidian :: Lat -> Lon -> [Station] -> [(Id, Float)]
+euclidian lat0 lon0 sts = map (\(Station {stationId = sid, lat = lat1, lon = lon1}) -> (sid, dist (lat0,lon0,lat1,lon1))) sts
+
+dist :: (Lat, Lon, Lat, Lon) -> Float
+dist (x0, y0, x1, y1) = sqrt $ (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
+
 
 
 stationList :: [Station]
