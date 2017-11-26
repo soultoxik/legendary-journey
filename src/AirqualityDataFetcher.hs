@@ -12,6 +12,7 @@ import Data.Aeson
 import GHC.Generics
 import Data.Text
 import qualified Data.ByteString.Lazy as B
+import qualified Data.Map as M
 import qualified ParserTypes as PT
 import Network.HTTP.Conduit
 
@@ -101,11 +102,14 @@ getStationO3Level stationId = do
                     Right t -> return (Just $ t)
                     Left msg -> return Nothing
 
-type Measurement = (String, Maybe Float)
+type MaybeMeasurement = (String, Maybe Float)
+type MaybeMeasurements = [MaybeMeasurement]
+
+type Measurement = (String, Float)
 type Measurements = [Measurement]
 
-infoById :: Int -> IO Measurements
-infoById stationId = do
+gather :: Int -> IO MaybeMeasurements
+gather stationId = do
     let toxins = ["no2", "so2", "co", "o3"]
     let getters = Prelude.map ($ stationId) [getStationNO2Level,  getStationSO2Level, getStationCOLevel, getStationO3Level]
     result0 <- (getters !! 0)
@@ -114,3 +118,19 @@ infoById stationId = do
     result3 <- (getters !! 3)
     let results = Prelude.zip toxins [result0, result1, result2, result3]
     return results
+        
+matchDefaults :: MaybeMeasurement -> Measurement
+matchDefaults (toxin, Just meas) = (toxin, meas) 
+matchDefaults (toxin, Nothing) = 
+            case def of
+                        Just x -> (toxin, x)
+                        Nothing -> (toxin, -1)
+            where cityBaseDefaults = M.fromList [("no2", 27), ("so2", 0),("co", 0),("o3", 13)]
+                  def = M.lookup toxin cityBaseDefaults
+
+
+infoById :: Int -> IO Measurements
+infoById stationId = do
+    gatherings <- gather stationId
+    let result = fmap matchDefaults gatherings
+    return (result)
