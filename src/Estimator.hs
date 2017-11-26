@@ -4,6 +4,7 @@
 module Estimator where
 import Types
 import qualified Data.Text as T
+import qualified Data.String as DS
 
 
 
@@ -44,15 +45,30 @@ populateNewSourceDelta m delta = AL { measure = m, lifeexp = 0, concentration = 
 mergeALsConc :: AnimalLife -> AnimalLife -> AnimalLife
 mergeALsConc (AL {measure = m0, lifeexp = le0, concentration = c0}) (AL {measure = m1, lifeexp = le1, concentration = c1}) = AL {measure = m0, lifeexp = le0, concentration = c0 + c1}
 
+-- baseConc from car
 populateNewSourceFull :: T.Text -> Float -> Float -> Int -> AnimalLife
-populateNewSourceFull m baseConc delta c = mergeALsConc (populateNewSource m baseConc c) (populateNewSourceDelta m delta)
+populateNewSourceFull m carConc delta c = mergeALsConc (populateNewSource m carConc c) (populateNewSourceDelta m delta)
 
+populateBase :: T.Text -> Float -> AnimalLife
+populateBase m baseConc = populateNewSource m baseConc 1
 
+populateFull :: T.Text -> Float -> Float -> Float -> Int -> AnimalLife
+populateFull measure baseConc carConc delta count = mergeALsConc (populateNewSourceFull measure carConc delta count) (populateBase measure baseConc)
 
 generateData :: Int -> Float -> Car -> [(String, Float)] -> [Animal] -> [Animal]
 generateData rate eps car currentState base = map update base
   where update = (\a -> A {  animal = (animal a), info = newAttrs } )
         newAttrs :: [AnimalLife]
-        newAttrs = undefined
+        newAttrs = map magic currentState
+        magic :: (String, Float) -> AnimalLife
+        magic (m, baseConc) = AL { measure = (DS.fromString m), lifeexp = 12, concentration = baseConc + (carConc' (DS.fromString m) car) * (fromIntegral rate) +  eps}
+
+        -- magic (m, baseConc) = populateFull (DS.fromString m) baseConc (carConc' m car) eps rate
+        carConc' :: String -> Car -> Float
+        carConc' measure car | measure == "co" = getCO car
+                            | measure == "o3" = getO3 car
+                            | measure == "so2" = getSO2 car
+                            | measure == "no2" = getNO2 car
+                            | otherwise = 0.0
 
 -- animals =

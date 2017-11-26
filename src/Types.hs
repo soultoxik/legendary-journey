@@ -23,7 +23,7 @@ data StationInfo = S
 
 
 grammsToConcentration :: Float -> Float
-grammsToConcentration g = (g / 1500.0) * 1000000.0
+grammsToConcentration g = (g / 1500.0) * 10000.0
 
 data Stations = St { stations :: [StationInfo] } deriving (Show, Generic)
 

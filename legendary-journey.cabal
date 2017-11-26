@@ -41,6 +41,7 @@ executable legendary-journey-exe
                      , warp
                      , http-conduit
                      , time
+                     , random
   default-language:    Haskell2010
 
 test-suite legendary-journey-test

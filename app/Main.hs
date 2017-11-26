@@ -13,7 +13,8 @@ import AirqualityDataFetcher
 import qualified Data.String as DS
 import Estimator
 import Data.Time.Clock.POSIX
-
+import qualified Estimator as Est
+import System.Random
 
 
 
@@ -57,13 +58,6 @@ stationInfo = [
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
 
-randomMaker :: Int -> Float
-randomMaker seed = val / 310.0
-    where val = (fromIntegral (seed `mod` 100)) * 3.14 + 2.71
-
-randomBounded :: Int -> Float-> Float
-randomBounded seed bound = (randomMaker seed) * bound
-
 
 main = do
   putStrLn "Starting Server..."
@@ -82,21 +76,27 @@ main = do
       addHeader "Access-Control-Allow-Origin" "*"
 
       -- pid <- param "id"
+      -- generateData :: Int -> Float -> Car -> [(String, Float)] -> [Animal] -> [Animal]
       json $ stationInfo
     get "/fullinfo/:lat/:lon" $ do
+      seed <- liftAndCatchIO $ newStdGen
       addHeader "Access-Control-Allow-Origin" "*"
-      json $ FI {animals = stationInfo, sights = ["Karnaval", "Kipelov", "Ygaraem tyt"], topPolluted = 3, timeToBusStop = 12}
+      -- count <- liftAndCatchIO $ (randomIO :: IO Float)
+      let (eps, seed0) =  randomR (0.0 :: Float, 1.0 :: Float) seed
+      let (rate, _) =  randomR (1 :: Int, 5 :: Int) seed0
 
+      let stationInfoAct = Est.generateData rate eps car [("no2", 2.3), ("so2", 0.2)] Est.animalsBase
+      json $ FI {animals = stationInfoAct, sights = ["Karnaval", "Kipelov", "Ygaraem tyt"], topPolluted = 3, timeToBusStop = 12}
+                        -- where stationInfoAct = Est.generateData (round (randomBounded curTime 4.0)) (randomMaker curTime) car curState Est.animalsBase
+                        --       curTime = round `fmap` getPOSIXTime
+                        --       curState = [("no2", 22.3)]
+                        --
 
     get "/no2/:id" $ do
       sid <- param "id"
       addHeader "Access-Control-Allow-Origin" "*"
       level <- liftAndCatchIO $ getStationNO2Level $ read sid
       text $ DS.fromString level
-    get "/info/:lat/:lon" $ do
-      time <- liftAndCatchIO $  round `fmap` getPOSIXTime
-      text $ DS.fromString $ show $ randomMaker time
-
 
     get "/pm/:lat/:lon" $ do
       addHeader "Access-Control-Allow-Origin" "*"
