@@ -54,9 +54,6 @@ stationInfo = [
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
 
-cityBase :: [(String, Float)]
-cityBase = [("no2", 27.0), ("so2", 0.0),("co", 0.0),("o3", 13.0),("pm10",13.0),("pm25", 20.0)]
-
 
 main = do
   putStrLn "Starting Server..."
@@ -84,18 +81,15 @@ main = do
       let (eps, seed0) =  randomR (0.0 :: Float, 1.0 :: Float) seed
       let (rate, _) =  randomR (1 :: Int, 5 :: Int) seed0
 
-      let stationInfoAct = Est.generateData rate eps car [("no2", 2.3), ("so2", 0.2)] Est.animalsBase
-      json $ FI {animals = stationInfoAct, sights = ["Karnaval", "Kipelov", "Ygaraem tyt"], topPolluted = 3, timeToBusStop = 12}
-                        -- where stationInfoAct = Est.generateData (round (randomBounded curTime 4.0)) (randomMaker curTime) car curState Est.animalsBase
-                        --       curTime = round `fmap` getPOSIXTime
-                        --       curState = [("no2", 22.3)]
-                        --
+      bases <- liftAndCatchIO $ infoById 564
 
-    get "/no2/:id" $ do
-      sid <- param "id"
-      addHeader "Access-Control-Allow-Origin" "*"
-      level <- liftAndCatchIO $ getStationNO2Level $ read sid
-      text $ DS.fromString level
+      let stationInfoAct = Est.generateData rate eps car bases Est.animalsBase
+      json $ FI {animals =  stationInfoAct, sights = ["Karnaval", "Kipelov", "Ygaraem tyt"], topPolluted = 3, timeToBusStop = 12}
+                        -- where filterZero = map clearZeroALs
+                        --       clearZeroALs (A {animal = an, info=ifs}) = A {animal = an, info = filter filterZero ifs}
+                        --       filterZero :: AnimalLife -> Bool
+                        --       filterZero AL {lifeExp = le} | le == 0    = True
+                        --                                    | otherwise  = False
 
     get "/pm/:lat/:lon" $ do
       addHeader "Access-Control-Allow-Origin" "*"

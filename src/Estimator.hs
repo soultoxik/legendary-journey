@@ -35,8 +35,6 @@ deathRateDelta ng pm = ng * (rates pm)
 -- makeAnimalRaw :: String -> [(T.Text, Int, Float)] -> Animal
 -- makeAnimalLife :: T.Text -> Int -> Float -> AnimalLife
 
-
-
 populateNewSource :: T.Text -> Float -> Int -> AnimalLife
 populateNewSource m c count = AL { measure = m, lifeexp = 0, concentration = c * (fromIntegral count)}
 
@@ -69,7 +67,9 @@ concentrationByKey (A {info = infos}) key =
                           Nothing -> 0.0
 
 newLifeexp :: String -> Float -> Animal -> Int -> Float -> Int
-newLifeexp m baseConc a rate eps= (lifeExpByKey a (DS.fromString m)) * round ((concentrationByKey a (DS.fromString m)) / (newConc m baseConc a rate eps))
+-- newLifeexp m baseConc a rate eps= (lifeExpByKey a (DS.fromString m)) * ceiling ((concentrationByKey a (DS.fromString m)) / (newConc m baseConc a rate eps))
+newLifeexp m baseConc a rate eps= floor $ (fromIntegral (lifeExpByKey a (DS.fromString m))) * ((concentrationByKey a (DS.fromString m)) / (newConc m baseConc a rate eps))
+
 
 newConc :: String -> Float -> Animal -> Int -> Float -> Float
 newConc m baseConc a rate eps = baseConc + (carConc' (DS.fromString m) car) * (fromIntegral rate) +  eps
@@ -80,6 +80,8 @@ carConc' measure car | measure == "co" = getCO car
                     | measure == "so2" = getSO2 car
                     | measure == "no2" = getNO2 car
                     | otherwise = 0.0
+
+
 
 generateData :: Int -> Float -> Car -> [(String, Float)] -> [Animal] -> [Animal]
 generateData rate eps car currentState base = map update base
