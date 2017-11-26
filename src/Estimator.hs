@@ -3,6 +3,8 @@
 
 module Estimator where
 import Types
+import qualified Data.Text as T
+
 
 
 animalsBase :: [Animal]
@@ -28,8 +30,17 @@ rates PM25 = 0.007
 deathRateDelta:: Float -> PM -> Float
 deathRateDelta ng pm = ng * (rates pm)
 
-generateData :: Float -> Float -> Car -> [Animal] -> [Animal]
-generateData rate eps car ans = undefined
+-- makeAnimalRaw :: String -> [(T.Text, Int, Float)] -> Animal
+-- makeAnimalLife :: T.Text -> Int -> Float -> AnimalLife
 
+
+
+populateNewSource :: T.Text -> Float -> Int -> AnimalLife
+populateNewSource m c count = AL { measure = m, lifeexp = 0, concentration = c * (fromIntegral count)}
+
+generateData :: Int -> Float -> Car -> [Animal] -> [Animal] -> [Animal]
+generateData rate eps car current base = map update base
+  where update anim = makeAnimalRaw (animal anim) newAttrs
+        newAttrs = undefined
 
 -- animals =

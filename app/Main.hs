@@ -53,12 +53,17 @@ stationInfo = [
 
 
 
+
 byId :: Int -> StationInfo -> Bool
 byId i (S {stationId = ci}) = (i == ci)
 
 randomMaker :: Int -> Float
 randomMaker seed = val / 310.0
     where val = (fromIntegral (seed `mod` 100)) * 3.14 + 2.71
+
+randomBounded :: Int -> Float-> Float
+randomBounded seed bound = (randomMaker seed) * bound
+
 
 main = do
   putStrLn "Starting Server..."
@@ -78,6 +83,10 @@ main = do
 
       -- pid <- param "id"
       json $ stationInfo
+    get "/fullinfo/:lat/:lon" $ do
+      addHeader "Access-Control-Allow-Origin" "*"
+      json $ FI {animals = stationInfo, sights = ["Karnaval", "Kipelov", "Ygaraem tyt"], topPolluted = 3, timeToBusStop = 12}
+
 
     get "/no2/:id" $ do
       sid <- param "id"

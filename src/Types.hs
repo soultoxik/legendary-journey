@@ -48,6 +48,15 @@ data Car = Car CO NO2 SO2 O3 PM10F PM25F
 car :: Car
 car = Car (grammsToConcentration 8.73) (grammsToConcentration 1.5) (grammsToConcentration 0.6) (grammsToConcentration 0.0) (grammsToConcentration 0.06) (grammsToConcentration 0.02)
 
+getCO     (Car co _ _ _ _ _ ) = co
+getNO2    (Car _ co _ _ _ _ ) = co
+getSO2    (Car _ _ co _ _ _ ) = co
+getO3     (Car _ _ _ co _ _ ) = co
+getPM10F  (Car _ _ _ _ co _ ) = co
+getPM25F  (Car _ _ _ _ _ co ) = co
+
+
+
 data Animal = A {
   animal :: String,
   info :: AInfo
@@ -58,6 +67,13 @@ data AnimalLife = AL {
   measure :: T.Text,
   lifeexp :: Int,
   concentration :: Float
+} deriving (Show, Generic)
+
+data FullInfo = FI {
+  animals :: [Animal],
+  sights :: [String],
+  topPolluted :: Int,
+  timeToBusStop :: Int
 } deriving (Show, Generic)
 
 
@@ -72,3 +88,4 @@ instance ToJSON StationInfo
 
 instance ToJSON PM
 instance ToJSON PMPair
+instance ToJSON FullInfo
