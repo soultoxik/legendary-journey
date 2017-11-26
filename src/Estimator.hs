@@ -38,9 +38,21 @@ deathRateDelta ng pm = ng * (rates pm)
 populateNewSource :: T.Text -> Float -> Int -> AnimalLife
 populateNewSource m c count = AL { measure = m, lifeexp = 0, concentration = c * (fromIntegral count)}
 
-generateData :: Int -> Float -> Car -> [Animal] -> [Animal] -> [Animal]
-generateData rate eps car current base = map update base
-  where update anim = makeAnimalRaw (animal anim) newAttrs
+populateNewSourceDelta :: T.Text -> Float -> AnimalLife
+populateNewSourceDelta m delta = AL { measure = m, lifeexp = 0, concentration = delta}
+
+mergeALsConc :: AnimalLife -> AnimalLife -> AnimalLife
+mergeALsConc (AL {measure = m0, lifeexp = le0, concentration = c0}) (AL {measure = m1, lifeexp = le1, concentration = c1}) = AL {measure = m0, lifeexp = le0, concentration = c0 + c1}
+
+populateNewSourceFull :: T.Text -> Float -> Float -> Int -> AnimalLife
+populateNewSourceFull m baseConc delta c = mergeALsConc (populateNewSource m baseConc c) (populateNewSourceDelta m delta)
+
+
+
+generateData :: Int -> Float -> Car -> [(String, Float)] -> [Animal] -> [Animal]
+generateData rate eps car currentState base = map update base
+  where update = (\a -> A {  animal = (animal a), info = newAttrs } )
+        newAttrs :: [AnimalLife]
         newAttrs = undefined
 
 -- animals =

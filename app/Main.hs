@@ -99,6 +99,7 @@ main = do
 
 
     get "/pm/:lat/:lon" $ do
+      addHeader "Access-Control-Allow-Origin" "*"
       -- lat <- param "lat"
       -- lon <- param "lon"
       let pm10 = deathRateDelta 200 PM10
