@@ -106,7 +106,7 @@ main = do
       bases <- liftAndCatchIO $ infoById sid
 
       let stationInfoAct = Est.generateData rate eps car bases Est.animalsBase
-      json $ FI {animals = filterZero stationInfoAct, sights = ["Karnaval", "Kipelov", "Ygaraem tyt"], topPolluted = 3, timeToBusStop = 12}
+      json $ FI {animals = filterZero stationInfoAct, sights = ["Rock Church", "Uspenskin Cathedral", "Finnish National Theater", "Old Market Hall", "Ateneum Art Museum", "Helsinki Central Railway Station", "National Museum of Finland"], topPolluted = 3, timeToBusStop = 12}
 
 
     get "/pm/:lat/:lon" $ do
