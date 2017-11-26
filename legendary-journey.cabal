@@ -43,7 +43,6 @@ executable legendary-journey-exe
                      , http-conduit
                      , time
                      , random
-                     , gps
                      , bytestring
                      , containers
   default-language:    Haskell2010
